@@ -183,25 +183,25 @@ public class Chromo
 			
 		case 4:    // BJ: Rank Selection
 			
-			// Create a sorted list of fitnesses:
-			ArrayList<SortPair> to_sort = new ArrayList<SortPair>();
-			for (j=0; j < Parameters.popSize; ++j){
-				to_sort.add(new SortPair(Search.member[j].proFitness, j));
-			}
-			to_sort.sort(new MyComparator());
+			// // Create a sorted list of fitnesses:
+			// ArrayList<SortPair> to_sort = new ArrayList<SortPair>();
+			// for (j=0; j < Parameters.popSize; ++j){
+			// 	to_sort.add(new SortPair(Search.member[j].proFitness, j));
+			// }
+			// to_sort.sort(new MyComparator());
 			
-			// Create a Roulette wheel with slices based on rank for each member
-			ArrayList<Integer> rankWheel = new ArrayList<Integer>();
-			for (j=0; j < Parameters.popSize; ++j){
-				// The jth item in to_sort will get j+1 slices
-				for (int i = 0; i < j+1; ++i){
-					rankWheel.add(to_sort.get(j).position);
-				}
-			}
+			// // Create a Roulette wheel with slices based on rank for each member
+			// ArrayList<Integer> rankWheel = new ArrayList<Integer>();
+			// for (j=0; j < Parameters.popSize; ++j){
+			// 	// The jth item in to_sort will get j+1 slices
+			// 	for (int i = 0; i < j+1; ++i){
+			// 		rankWheel.add(to_sort.get(j).position);
+			// 	}
+			// }
 			
-			// Select a parent!
-			int p = Search.r.nextInt(rankWheel.size());
-			return rankWheel.get(p);
+			// // Select a parent!
+			// int p = Search.r.nextInt(rankWheel.size());
+			// return rankWheel.get(p);
 			
 		default:
 			System.out.println("ERROR - No selection method selected");

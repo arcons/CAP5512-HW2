@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class SequentialChromo extends Chromo
+public class Chromo
 {
 
 /*******************************************************************************
@@ -36,10 +36,10 @@ public class SequentialChromo extends Chromo
 *                              CONSTRUCTORS                                    *
 *******************************************************************************/
 
-	public SequentialChromo(){
+	public Chromo(){
 
 		//  Generate and shuffle a sequence of integers (separated by spaces):
-		getRandomChromosome();
+		getRandomTimeChromosome();
 
 		this.rawFitness = -1;   //  Fitness not yet evaluated
 		this.sclFitness = -1;   //  Fitness not yet scaled
@@ -52,15 +52,50 @@ public class SequentialChromo extends Chromo
 *                                MEMBER METHODS                                *
 *******************************************************************************/
 	
+	// Retrieve a Persons X Shifts matrix, indicating what time is assigned
+	// to each person for each of there shifts
+	
+	public int[][] getTimeRepresentation(){
+		// TODO: corresponds to getRandomTimeChromosome
+		int[][] timeSlots = new int[7][5];
+		
+		for (int i = 0; i < Parameters.geneSize; ++i){
+			int shift = i % 5;
+			int person = i / 5;
+			timeSlots[person][shift] = this.chromo.get(i);
+		}
+		
+		return timeSlots;
+	}
+	
+	public int [][] getPersonRepresentation(){
+		// TODO: corresponds to getRandomPersonChromosome
+		return null;
+	}
+	
 	// Generate a string representing a new, random chromosome
-	public void getRandomChromosome(){
+	// Values represent which time slots (1-35); P1S1, P1S2... P7S5
+	
+	public void getRandomTimeChromosome(){
 		chromo = new ArrayList<Integer>();
 		for (int i = 1; i <= Parameters.geneSize; ++i){
 			chromo.add(i);
 		}
-		Collections.shuffle(chromo);
+		Collections.shuffle(chromo, Search.r);
 	}
 	
+	// Generate a string representing a new, random chromosome
+	// Values represent people (1-7); D1S1, D1S2 ... D7S5
+	
+	public void getRandomPersonChromosome(){
+		chromo = new ArrayList<Integer>();
+		for (int i = 0; i < Parameters.geneSize; ++i){
+			chromo.add((i % 7) + 1);
+		}
+		Collections.shuffle(chromo, Search.r);
+	}
+	
+
 	//  Mutate a Chromosome Based on Mutation Type *****************************
 
 	public void doMutation(){
@@ -148,25 +183,25 @@ public class SequentialChromo extends Chromo
 			
 		case 4:    // BJ: Rank Selection
 			
-			// Create a sorted list of fitnesses:
-			ArrayList<SortPair> to_sort = new ArrayList<SortPair>();
-			for (j=0; j < Parameters.popSize; ++j){
-				to_sort.add(new SortPair(Search.member[j].proFitness, j));
-			}
-			to_sort.sort(new MyComparator());
+			// // Create a sorted list of fitnesses:
+			// ArrayList<SortPair> to_sort = new ArrayList<SortPair>();
+			// for (j=0; j < Parameters.popSize; ++j){
+			// 	to_sort.add(new SortPair(Search.member[j].proFitness, j));
+			// }
+			// to_sort.sort(new MyComparator());
 			
-			// Create a Roulette wheel with slices based on rank for each member
-			ArrayList<Integer> rankWheel = new ArrayList<Integer>();
-			for (j=0; j < Parameters.popSize; ++j){
-				// The jth item in to_sort will get j+1 slices
-				for (int i = 0; i < j+1; ++i){
-					rankWheel.add(to_sort.get(j).position);
-				}
-			}
+			// // Create a Roulette wheel with slices based on rank for each member
+			// ArrayList<Integer> rankWheel = new ArrayList<Integer>();
+			// for (j=0; j < Parameters.popSize; ++j){
+			// 	// The jth item in to_sort will get j+1 slices
+			// 	for (int i = 0; i < j+1; ++i){
+			// 		rankWheel.add(to_sort.get(j).position);
+			// 	}
+			// }
 			
-			// Select a parent!
-			int p = Search.r.nextInt(rankWheel.size());
-			return rankWheel.get(p);
+			// // Select a parent!
+			// int p = Search.r.nextInt(rankWheel.size());
+			// return rankWheel.get(p);
 			
 		default:
 			System.out.println("ERROR - No selection method selected");
@@ -176,7 +211,7 @@ public class SequentialChromo extends Chromo
 
 	//  Produce a new child from two parents  **********************************
 
-	public static void mateParents(int pnum1, int pnum2, SequentialChromo parent1, SequentialChromo parent2, SequentialChromo child1, SequentialChromo child2){
+	public static void mateParents(int pnum1, int pnum2, Chromo parent1, Chromo parent2, Chromo child1, Chromo child2){
 
 		int xoverPoint1;
 		int xoverPoint2;
@@ -210,7 +245,7 @@ public class SequentialChromo extends Chromo
 
 	//  Produce a new child from a single parent  ******************************
 
-	public static void mateParents(int pnum, SequentialChromo parent, SequentialChromo child){
+	public static void mateParents(int pnum, Chromo parent, Chromo child){
 
 		//  Create child chromosome from parental material
 		Collections.copy(child.chromo, parent.chromo);
@@ -223,7 +258,7 @@ public class SequentialChromo extends Chromo
 
 	//  Copy one chromosome to another  ***************************************
 
-	public static void copyB2A (SequentialChromo targetA, SequentialChromo sourceB){
+	public static void copyB2A (Chromo targetA, Chromo sourceB){
 
 		targetA.chromo = sourceB.chromo;
 		Collections.copy(targetA.chromo, sourceB.chromo);
@@ -249,24 +284,24 @@ public class SequentialChromo extends Chromo
 }   // End of SequentialChromo.java ********************************************
 
 
-///* For Rank Selection */
-//class SortPair{
-//	double fitness;
-//	int position;
-//	
-//	public SortPair(double fitness, int position){
-//		this.fitness = fitness;
-//		this.position = position;
-//	}
-//	
-//	public String toString(){
-//		return fitness + ", " + position;
-//	}
-//	
-//}
-//
-//class MyComparator implements Comparator<SortPair> {
-//    public int compare(SortPair a, SortPair b) { 
-//          return Double.compare(a.fitness, b.fitness);
-//    }
-//}
+/* For Rank Selection */
+class SortPair{
+	double fitness;
+	int position;
+	
+	public SortPair(double fitness, int position){
+		this.fitness = fitness;
+		this.position = position;
+	}
+	
+	public String toString(){
+		return fitness + ", " + position;
+	}
+	
+}
+
+class MyComparator implements Comparator<SortPair> {
+    public int compare(SortPair a, SortPair b) { 
+          return Double.compare(a.fitness, b.fitness);
+    }
+}
