@@ -46,9 +46,7 @@ public class ComputerLab extends FitnessFunction{
 	public void doRawFitness(Chromo X){
 	
 		// TODO: Change me!
-		doSimpleRawFitness(X);
-		
-		System.out.println(X.rawFitness + " " + X.chromo);
+		doRawFitnessStep(X);
 	}
 
 //  COMPUTE SIMPLE RAW FITNESS **********************************************************
@@ -56,6 +54,7 @@ public class ComputerLab extends FitnessFunction{
 	public void doSimpleRawFitness(Chromo X){
 		// TODO: Finish me!
 		// -1 if unavailable, 1 if available, 2 if in top 3
+		int[] unique_numbers = new int[35];
 		X.rawFitness = 0;
 		
 		// Check each assignment:
@@ -66,8 +65,14 @@ public class ComputerLab extends FitnessFunction{
 			// Is person available during assignment:
 			if (this.availability[person][assignment] != 0){
 				X.rawFitness += 1;
-			} else {
-				System.out.println((assignment+1) + " is not available to " + (person+1));
+			}
+			
+			// Has this aslot been assigned already?
+			if (unique_numbers[assignment] != 0){
+				X.rawFitness = 0;
+				break;
+			}else{
+				unique_numbers[assignment] += 1;
 			}
 		}
 	}
@@ -79,13 +84,6 @@ public class ComputerLab extends FitnessFunction{
 		// -1 if unavailable, 1 if available, 2 if in top 3
 		X.rawFitness = 0;
 		
-		System.out.println("Person 2" + " was assigned: ");
-		String assin = "";
-		for (int i = 5; i < 10; ++i){
-			assin += X.chromo.get(i) + " ";
-		}
-		System.out.println(assin);
-		
 		// Check each assignment:
 		for (int a = 0; a < Parameters.geneSize; a++){
 			int assignment = X.chromo.get(a) - 1;
@@ -95,7 +93,6 @@ public class ComputerLab extends FitnessFunction{
 			// Is person available during assignment:
 			if (this.availability[person][assignment] == 0){
 				X.rawFitness -= 1;  // Unavailable
-				System.out.println((person+1) + " " + (assignment + 1));
 			}
 			else if (this.availability[person][assignment] == 4)
 				X.rawFitness += 1;  // Available, but not top 3
@@ -125,6 +122,7 @@ public class ComputerLab extends FitnessFunction{
 				}
 			}
 		}
+
 		System.out.println("\nAvailability Matrix:");
 		for (int[] r: this.availability){
 			String row = "";

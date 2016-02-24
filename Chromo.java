@@ -100,7 +100,6 @@ public class Chromo
 
 	public void doMutation(){
 
-
 		switch (Parameters.mutationType){
 
 		case 1:     //  Randomly swap two genes (for chromosomes representing sequences)
@@ -222,7 +221,7 @@ public class Chromo
 			xoverPoint1 = 1 + (int)(Search.r.nextDouble() * (Parameters.numGenes * Parameters.geneSize-1));
 			Collections.copy(child1.chromo, parent1.chromo);
 			Collections.copy(child2.chromo, parent2.chromo);
-			crossLists(child1.chromo, child2.chromo, xoverPoint1);
+			sequenceCrossover(child1.chromo, child2.chromo, xoverPoint1);
 			break;
 
 		case 2:     //  Two Point Crossover
@@ -280,6 +279,52 @@ public class Chromo
 			}
 		}
 	}
+	
+	// BJ: Perform 1-point cross-over on two lists AND preserve sequences ******
+	
+	public static  void sequenceCrossover(List<Integer> l1, List<Integer> l2, int crossPoint){
+		HashSet<Integer> seen1 = new HashSet<Integer>();
+		HashSet<Integer> seen2 = new HashSet<Integer>();
+		HashMap<Integer, Integer> duplicates1 = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> duplicates2 = new HashMap<Integer, Integer>();
+		// Blindly cross lists:
+		crossLists(l1, l2, crossPoint);
+		// Check for duplicates:
+		for (int i = 0; i < l1.size(); ++i){
+			if (seen1.contains(l1.get(i)))
+				duplicates1.put(l1.get(i), i);
+			else
+				seen1.add(l1.get(i));
+			if (seen2.contains(l2.get(i)))
+				duplicates2.put(l2.get(i), i);
+			else
+				seen2.add(l2.get(i));
+		}
+		// Replace duplicates (in l1):
+		for (int dup: duplicates1.keySet()){
+			// Find the first num not in seen1 in l2
+			for (int j = 0; j < l2.size(); ++j){
+				int in2 = l2.get(j);
+				if (!seen1.contains(in2)){
+					l1.set(duplicates1.get(dup), in2);
+					seen1.add(in2);
+					break;
+				}
+			}
+		}
+		// Replace duplicates (in l2):
+		for (int dup: duplicates2.keySet()){
+			// Find the first num not in seen1 in l2
+			for (int j = 0; j < l1.size(); ++j){
+				int in1 = l1.get(j);
+				if (!seen2.contains(in1)){
+					l2.set(duplicates2.get(dup), in1);
+					seen2.add(in1);
+					break;
+				}
+			}
+		}
+	}
 
 }   // End of SequentialChromo.java ********************************************
 
@@ -297,7 +342,6 @@ class SortPair{
 	public String toString(){
 		return fitness + ", " + position;
 	}
-	
 }
 
 class MyComparator implements Comparator<SortPair> {
